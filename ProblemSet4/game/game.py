@@ -15,6 +15,8 @@ def main():
             pass
 
         else:
+            if level <= 0:
+                continue
             # otherweise generating a random number between one and the users input
             solution = randint(1, level)
 
@@ -35,10 +37,10 @@ def main():
         else:
             # otherwise giving the user hints
             if guess > solution:
-                print("Too small!")
+                print("Too large!")
 
             elif guess < solution:
-                print("Too large!")
+                print("Too small!")
 
             # in the case of the user guessed the randomly generated number 
             # printing the success and exiting the gameloop
