@@ -58,7 +58,7 @@ def main():
 						if date_validation(year, month, day):
 
 							# printing the date in requested format
-							print(f"{year.strip()}-{month}-{day.strip()}")
+							print(f"{year.strip()}-{int(month):02}-{int(day):02}")
 
 							# breaking the infinite loop
 							break
@@ -71,7 +71,7 @@ def main():
 			# checking the combination of number being a date
 			if date_validation(year, month, day):
 				# printing the date in requested format
-				print(f"{year}-{month}-{day}")
+				print(f"{year.strip()}-{int(month):02}-{int(day):02}")
 				break
 
 			else:
