@@ -18,10 +18,13 @@ def test_convert():
     assert convert("100/100") == 100
 
 def test_gauge():
-    # looping through general cases
-    for i in range(1, 100):
-        assert gauge(i) == f"{i}%"
+
+    assert gauge(25) == "25%"
+    assert gauge(50) == "50%"
+    assert gauge(75) == "75%"
 
     # testing cornvercases
     assert gauge(0) == "E"
+    assert gauge(1) == "E"
+    assert gauge(99) == "F"
     assert gauge(100) == "F"
