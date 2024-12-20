@@ -14,23 +14,20 @@ def main():
         
         # trying to get user input
         try:
-            name = input("Name: ")
+            name = input("")
 
         # handling EOFError
         except EOFError:
             # assign formatted_names variable per inflect documentation
-            formatted_names = p.join(names, final_sep="")
-
-            # printing new line and the formatted names
-            print("")
-            print("Adieu, adieu, to", formatted_names)
-            
+            formatted_names = p.join(names)
             # breaking the input loop
             break
 
         else:
             # appending the line inputted by the user to the list
             names.append(name)
+
+    print("Adieu, adieu, to", formatted_names)
 
 
 if __name__ == "__main__":
