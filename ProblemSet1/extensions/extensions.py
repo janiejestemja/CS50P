@@ -12,18 +12,21 @@ def main():
 	"zip": "application/zip",
 	}
 	# getting user input forced to lowercase
-	user_input = input("Filename: ").lower()
+	user_input = input("Filename: ").strip().lower()
 	# splitting user input into filename and extension
-	filename, extension = user_input.rsplit(".", maxsplit=1)
-
-	# checking if extension is an accepted extension
-	if extension in accepted_extensions:
-		# printing the mime type associated with it
-		print(accepted_extensions[extension])
-
-	else:
-		# printing default otherwise
+	try:
+		filename, extension = user_input.rsplit(".", maxsplit=1)
+	except ValueError:
 		print("application/octet-stream")
+	else:
+		# checking if extension is an accepted extension
+		if extension in accepted_extensions:
+			# printing the mime type associated with it
+			print(accepted_extensions[extension])
+
+		else:
+			# printing default otherwise
+			print("application/octet-stream")
 
 if __name__ == "__main__":
 	main()

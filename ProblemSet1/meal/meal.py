@@ -14,7 +14,7 @@ def main():
 
 	# checking for breakfast time between 18 and 19 o'clock
 	elif 19 >= number_of_hours >= 18:
-		print("dimmer time")
+		print("dinner time")
 
 
 

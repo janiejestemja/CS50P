@@ -11,10 +11,10 @@ def main():
 	while amount_due > 0:
 
 		# printing current amount due
-		print(f"Amount due: {amount_due}")
+		print(f"Amount Due: {amount_due}")
 
 		# typeforcing inserted coin to int
-		inserted_coin = int(input("Insert coin: "))
+		inserted_coin = int(input(""))
 
 		# checking if inserted coin is valid
 		if inserted_coin in valid_denominations:
@@ -24,7 +24,7 @@ def main():
 	# checking if amount due is payed
 	if amount_due <= 0:
 		# printing change owed even if it is zero
-		print(f"Change owed: {-1 * amount_due}")
+		print(f"Change Owed: {-1 * amount_due}")
 
 if __name__ == "__main__":
 	main()
