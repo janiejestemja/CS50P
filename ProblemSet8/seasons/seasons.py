@@ -61,15 +61,11 @@ def func(date_today, a_date):
     Raises:
         ValueError: If either of the input values are not `datetime.date` or if `a_date` is in the future.
     """
-    # input validation
-    teda = date(year=1, month=1, day=1)
-    if type(date_today) != type(teda) or type(a_date) != type(teda):
-        raise ValueError("func only accepts arguments of type datetime.date")
     p = engine()
     delta = date_today - a_date 
     if delta.days < 0:
         raise ValueError("given date is in the future.")
-    return p.number_to_words(delta.days * 24 * 60, andword="") + " minutes."
+    return p.number_to_words(delta.days * 24 * 60, andword="").capitalize() + " minutes"
 
 
 if __name__ == "__main__":
