@@ -1,85 +1,83 @@
 # Fuel Gauge
 
 def main():
-	# starting infinite loop 
+	# setting up infinite loop
 	while True:
-		# asking for user input splitting it into nominator and denominator
-		nominator, denominator = input("Fraction: ").strip().split("/")
+		# asking for input
+		fraction = input("Fraction: ").strip()
 
-		# trying to call helper_func
 		try:
-			result = helper_fuc(nominator, denominator)
-
-		# handling exceptions 
+			# trying conversion
+			percentage = convert(fraction)
+		# passing by exceptions
 		except (ValueError, ZeroDivisionError):
 			pass
-
 		else:
-			# checking for returned type from function call if succeeded
-			if type(result) == str():
-				# printing the returned result as is if it is a str
-				print(result)
-			else:
-				# otherwise printing out formatted returned result
-				print(f"{result}%")
+			print(gauge(percentage))
+			break
 
-
-def helper_fuc(nominator, denominator):
+def convert(fraction):
 	"""
-	Calclutates a percentage out of division of a nominator and denominater 
-	and handles possible ValueErrors as well as the ZeroDivisionError.
+	Converts a fraction to a number.
 
-	Args: 
-		nominator (int): A number.
-		denominator (int): A number.
+	Args:
+		fraction (str): A str in X/Y format where X an Y are integers.
 
-	Returns: 
-		int: Integer between 1 and 99 representing the perce
-		str: Either "F" if result > 99 or "E" if result < 1.
+	Returns:
+		int: Nearest int between 0 and 100, inclusive.
 
 	Raises:
-		ValueError: If one of the passed arguements is None 
-		or passed arguments are not of type int.
-		ZeroDivisionError: If denominator is zero.
+		ValueError: If X is greater than Y.
+		ZeroDivisionError: If Y is zero.
 	"""
+	# splitting input into nominator and denominator
+	nominator, denominator = fraction.split("/")
 
-	# checking arguments for None
-	if nominator is None or denominator is None:
-		raise ValueError("Given fraction is incomplete.")
-
-	# trying typeforcing to int
+	# trying typoforcing input
 	try:
 		nominator = int(nominator)
 		denominator = int(denominator)
-
 	# handling exception
 	except ValueError:
 		raise ValueError("Given variables are not recognized as integers.")
 
 	else:
+		if nominator > denominator:
+			raise ValueError("Gauge only works until 100%")
 		# trying division
 		try:
 			result = nominator / denominator
 
-		# handling ZeroDivisionError
+		# handling exception
 		except ZeroDivisionError:
 			raise ZeroDivisionError("We do not divide through zero.")
 
 		else:
-			# multiplying result of division by 100
+			# multiplying number by hundret, rounding to nearest int and returning result
 			result = result * 100
+			return round(result)
 
-			# checking for result > 99
-			if result > 99:
-				return "F"
+def gauge(percentage):
+	"""
+	Represents a fuel-gauge.
 
-			# checking for result < 1
-			elif result < 1:
-				return "E"
+	Args:
+		percentage (int/float): A number.
 
-			# otherwise return rounded result.
-			else:
-				return round(result)
+	Returns:
+		str: A str representing the output of a fuel-gauge.
+	"""
+
+	# chcking for fullness and emptyness
+	if percentage >= 99:
+		return "F"
+
+	elif percentage <= 1:
+		return "E"
+
+	# if neither full nor empty printing percentage per formatstring.
+	else:
+		return f"{percentage}%"
 
 
 if __name__ == "__main__":

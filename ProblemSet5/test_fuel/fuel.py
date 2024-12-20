@@ -7,15 +7,14 @@ def main():
 		fraction = input("Fraction: ").strip()
 
 		try:
-			# trying conversion 
+			# trying conversion
 			percentage = convert(fraction)
-
 		# passing by exceptions
 		except (ValueError, ZeroDivisionError):
 			pass
-		# priting result
 		else:
 			print(gauge(percentage))
+			break
 
 def convert(fraction):
 	"""
@@ -40,16 +39,18 @@ def convert(fraction):
 		denominator = int(denominator)
 	# handling exception
 	except ValueError:
-		raise ValueError("given variables are not recognized as integers.")
+		raise ValueError("Given variables are not recognized as integers.")
 
 	else:
+		if nominator > denominator:
+			raise ValueError("Gauge only works until 100%")
 		# trying division
 		try:
 			result = nominator / denominator
 
 		# handling exception
 		except ZeroDivisionError:
-			raise ZeroDivisionError("we do not divide through zero.")
+			raise ZeroDivisionError("We do not divide through zero.")
 
 		else:
 			# multiplying number by hundret, rounding to nearest int and returning result
@@ -66,12 +67,12 @@ def gauge(percentage):
 	Returns:
 		str: A str representing the output of a fuel-gauge.
 	"""
-    
+
 	# chcking for fullness and emptyness
-	if percentage > 99:
+	if percentage >= 99:
 		return "F"
 
-	elif percentage < 1:
+	elif percentage <= 1:
 		return "E"
 
 	# if neither full nor empty printing percentage per formatstring.
