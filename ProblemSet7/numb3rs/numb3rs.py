@@ -38,18 +38,21 @@ def validate(ip):
         else:
             # checking for correct length
             if len(numb3rs) == 4:
-
+                # Current state
+                state = True
                 # checking accepted ranges for numbers in the adress
                 for numb3r in numb3rs:
                     if numb3r > 255:
-                        return False
+                        state = False
 
                     elif numb3r < 0:
-                        return False
+                        state = False
 
                     else:
-                        # returning true after all checks were passed
-                        return True
+                        continue
+
+                return state
+
             else:
                 # otherwise returning false
                 return False
