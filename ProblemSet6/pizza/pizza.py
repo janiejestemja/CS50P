@@ -29,9 +29,8 @@ def main():
     try: 
         with open(sup_f_loc) as f:
             reader = csv.DictReader(f)
-
             # printing formatted output
-            print(tabulate(reader, headers="firstrow", tablefmt="grid"))
+            print(tabulate(reader, headers="keys", tablefmt="grid"))
     
     # handling exception
     except FileNotFoundError:
