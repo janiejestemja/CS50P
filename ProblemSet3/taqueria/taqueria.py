@@ -17,10 +17,11 @@ def main():
 
 		else:
 			# calculating new total by calling helper_func
-			total = total + helper_func(item)
+			if helper_func(item) != 0:
+				total = total + helper_func(item)
 
-			# printing the current total
-			print(f"Total: {total}")
+				# printing the current total
+				print(f"Total: ${total:.2f}")
 
 def helper_func(item):
 	"""
