@@ -10,7 +10,7 @@ def main():
 
 		# trying to get user input
 		try:
-			item = input("Item: ")
+			item = input("")
 		
 		# handling EOFError
 		except EOFError:
