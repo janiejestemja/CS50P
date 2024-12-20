@@ -6,7 +6,7 @@ def main():
     if checkers.is_email(input("Email: ").strip()):
         print("Valid")
     else:
-        print("Invaild")
+        print("Invalid")
 
 if __name__ == "__main__":
     main()
