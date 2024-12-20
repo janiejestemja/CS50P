@@ -111,7 +111,7 @@ def generate_integer(level):
     
         case 1:
             # generating an integer with one decimal digit
-            return randint(1, 9)
+            return randint(0, 9)
             
         case 2:
             # generating an integer with two decimal digits
