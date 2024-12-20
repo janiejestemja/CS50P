@@ -6,8 +6,10 @@ import sys
 def main():
     # checking for amount of command line arguments (cla)
     if len(sys.argv) != 2: 
-        sys.exit("Unexpected amount of commandlinearguments.")
-    
+        sys.exit(1)
+    elif not sys.argv[1].endswith(".py"):
+        sys.exit(1)
+
     # checking supposed filelocation
     sup_f_loc = os.path.join(os.getcwd(), sys.argv[1])
 
