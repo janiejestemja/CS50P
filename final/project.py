@@ -61,15 +61,41 @@ def main():
         principal, interest_rate, term = get_input()
 
     if not os.path.exists(btn_img_dir):
-        os.makedirs(btn_img_dir)  # Create the directory
+        # Create the directory
+        os.makedirs(btn_img_dir)
         print(f"Directory '{btn_img_dir}' created.")
+
+        # Fill directory with Images for Buttons
+        create_btn_images(plot_types, loan_models)
+        print("Button images created.")
+
+    else:
+        # Check if the Images are already in place
+        plot_btn_imgs = ["print_white.png"]
+        for plot in plot_types + loan_models:
+            for color in color_names:
+                plot_btn_imgs.append(f"{plot}_{color}.png")
+
+        print(f"Plot Button Images: {plot_btn_imgs}")
+
+        # Get all files in the directory
+        files = [file for file in os.listdir(btn_img_dir) if os.path.isfile(os.path.join(btn_img_dir, file))]
+
+        print(f"Files: {files}")
+
+        missing_btns = [btn_img_name for btn_img_name in plot_btn_imgs if btn_img_name not in files]
+
+        print(f"Missing Buttons: {missing_btns}")
+
+        if len(missing_btns) > 0:
+            create_btn_images(plot_types, loan_models)
+            print("Button Images created.")
 
     if not os.path.exists(plots_dir):
         os.makedirs(plots_dir)  # Create the directory
         print(f"Directory '{plots_dir}' created.")
 
 
-    create_btn_images(plot_types, loan_models)
 
     make_plots(principal, interest_rate, term)
 
@@ -93,7 +119,7 @@ def get_input():
         "Principal: ",
         float,
         lambda x: x > 0,
-        "Kapital is expected to be a floating point number greater than zero."
+        "Principal is expected to be a floating point number greater than zero."
     )
 
     # Zinssatz
@@ -101,15 +127,15 @@ def get_input():
         "Interest rate: ",
         float,
         lambda x: 0 < x <= 1,
-        "Zinssatz is expected to be a floating point number between 0 and 1."
+        "The interest rate is expected to be a floating point number between 0 and 1."
     )
 
     # Laufzeit
     term = get_valid_input(
-        "Laufzeit: ",
+        "Term: ",
         int,
         lambda x: x > 0,
-        "Laufzeit is expected to be a positive integer."
+        "The term is expected to be a positive integer."
     )
 
     return [principal, interest_rate, term]
