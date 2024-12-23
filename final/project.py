@@ -10,135 +10,128 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 
-color_names = ["white", "black"]
-plot_types = ["scatter", "line", "bar"]
-loan_models = ["amortizing", "annuity", "bullet"]
-btn_img_dir = "btn_img"
-plots_dir = "plots"
-# Create a list to store plot names
-plot_names = [[f"{loan}_{plot}" for plot in plot_types] for loan in loan_models]
+# Directories for button images and plots
+BUTTON_IMAGE_DIRECTORY = "btn_img"
+PLOT_DIRECTORY = "plots"
+
+# Available color schemes and plot types
+COLOR_SCHEMES = ["white", "black"]
+PLOT_TYPES = ["scatter", "line", "bar"]
+LOAN_MODELS = ["amortizing", "annuity", "bullet"]
+
+# Generate loan-specific plot names
+LOAN_PLOT_NAMES = [[f"{loan}_{plot}" for plot in PLOT_TYPES] for loan in LOAN_MODELS]
 
 def main():
+    """Main function to run the loan comparison script."""
     parser = argparse.ArgumentParser(description="A script to compare loan repayment plans.")
 
-    # Add arguments with custom file check
+    # Add arguments for loan parameters
     parser.add_argument("--principal", type=float, help="Loan amount (Principal).")
     parser.add_argument("--interest_rate", type=float, help="Interest rate (A number between 0 and 1).")
     parser.add_argument("--term", type=int, help="Loan term in years.")
 
     args = parser.parse_args()
+    command_line_args = validate_arguments(args)
 
-    # Extracting command-line arguments
-    command_line_args = []
+    if command_line_args:
+        principal, interest_rate, term = command_line_args
+    else:
+        principal, interest_rate, term = get_user_input()
+
+    setup_directories()
+
+    generate_plots(principal, interest_rate, term)
+    run_pygame_interface(principal, interest_rate, term)
+
+def validate_arguments(args):
+    """Validate command-line arguments and return them as a tuple if valid."""
+    validated_args = []
     if args.principal:
         if args.principal <= 0:
-            print("Principal is expected to be a number greater than zero.")
+            print("Principal must be greater than zero.")
             sys.exit(1)
-        command_line_args.append(args.principal)
+        validated_args.append(args.principal)
     if args.interest_rate:
-        if args.interest_rate <= 0:
-            print("Interest rate is expected to be a value greater than zero.")
+        if not 0 < args.interest_rate <= 1:
+            print("Interest rate must be between 0 and 1.")
             sys.exit(1)
-        elif args.interest_rate > 1:
-            print("Interest rate is expected to be a value less than one.")
-            sys.exit(1)
-        command_line_args.append(args.interest_rate)
+        validated_args.append(args.interest_rate)
     if args.term:
         if args.term <= 0:
-            print("Term is expected to be a value greater than zero.")
+            print("Term must be greater than zero.")
             sys.exit(1)
-        command_line_args.append(args.term)
+        validated_args.append(args.term)
 
-    args = parser.parse_args()
+    return validated_args if len(validated_args) == 3 else None
 
-    # Checking if all necessary commandline arguments are provided
-    if len(command_line_args) == 3:
-        principal = command_line_args[0]
-        interest_rate = command_line_args[1]
-        term = command_line_args[2]
-    # Calling for user input if not
+def get_user_input():
+    """Prompt the user to input loan parameters and validate them."""
+    def prompt_input(prompt, input_type, condition, error_message):
+        while True:
+            try:
+                value = input_type(input(prompt))
+                if condition(value):
+                    return value
+                else:
+                    print(error_message)
+            except ValueError:
+                print(f"Invalid input. Expected {input_type.__name__}.")
+
+    principal = prompt_input("Principal: ", float, lambda x: x > 0, "Principal must be greater than zero.")
+    interest_rate = prompt_input("Interest rate (0 < rate <= 1): ", float, lambda x: 0 < x <= 1, "Interest rate must be between 0 and 1.")
+    term = prompt_input("Term (years): ", int, lambda x: x > 0, "Term must be greater than zero.")
+
+    return principal, interest_rate, term
+
+def setup_directories():
+    """Ensure necessary directories for button images and plots exist."""
+    if not os.path.exists(BUTTON_IMAGE_DIRECTORY):
+        os.makedirs(BUTTON_IMAGE_DIRECTORY)
+        create_button_images()
     else:
-        principal, interest_rate, term = get_input()
-
-    if not os.path.exists(btn_img_dir):
-        # Create the directory
-        os.makedirs(btn_img_dir)
-        print(f"Directory '{btn_img_dir}' created.")
-
-        # Fill directory with Images for Buttons
-        create_btn_images(plot_types, loan_models)
-        print("Button images created.")
-
-    else:
-        # Check if the Images are already in place
         plot_btn_imgs = ["print_white.png"]
-        for plot in plot_types + loan_models:
-            for color in color_names:
+        for plot in PLOT_TYPES + LOAN_MODELS:
+            for color in COLOR_SCHEMES:
                 plot_btn_imgs.append(f"{plot}_{color}.png")
 
-        print(f"Plot Button Images: {plot_btn_imgs}")
-
         # Get all files in the directory
-        files = [file for file in os.listdir(btn_img_dir) if os.path.isfile(os.path.join(btn_img_dir, file))]
-
-        print(f"Files: {files}")
+        files = [file for file in os.listdir(BUTTON_IMAGE_DIRECTORY) if os.path.isfile(os.path.join(BUTTON_IMAGE_DIRECTORY, file))]
 
         missing_btns = [btn_img_name for btn_img_name in plot_btn_imgs if btn_img_name not in files]
 
-        print(f"Missing Buttons: {missing_btns}")
-
         if len(missing_btns) > 0:
-            create_btn_images(plot_types, loan_models)
-            print("Button Images created.")
+            create_button_images()
 
-    if not os.path.exists(plots_dir):
-        os.makedirs(plots_dir)  # Create the directory
-        print(f"Directory '{plots_dir}' created.")
+    if not os.path.exists(PLOT_DIRECTORY):
+        os.makedirs(PLOT_DIRECTORY)
 
+def create_button_images():
+    """Generate button images for GUI interaction."""
+    for text, width, height in [("print", 200, 100)] + [(name, 200, 100) for name in PLOT_TYPES]:
+        for color, bg_color, text_color in zip(COLOR_SCHEMES, ["white", "black"], ["black", "white"]):
+            image = create_text_image(text.capitalize(), width, height, bg_color, text_color, border_color=text_color)
+            image.save(os.path.join(BUTTON_IMAGE_DIRECTORY, f"{text}_{color}.png"))
 
+    for text, width, height in [(name, 300, 100) for name in LOAN_MODELS]:
+        for color, bg_color, text_color in zip(COLOR_SCHEMES, ["white", "black"], ["black", "white"]):
+            image = create_text_image(text.capitalize(), width, height, bg_color, text_color, border_color=text_color)
+            image.save(os.path.join(BUTTON_IMAGE_DIRECTORY, f"{text}_{color}.png"))
 
-    make_plots(principal, interest_rate, term)
+def create_text_image(text, width, height, bg_color, text_color, border_color, border_thickness=5):
+    """Create a text-based image for buttons."""
+    image = Image.new("RGB", (width, height), border_color)
+    draw = ImageDraw.Draw(image)
+    inner_rect = [border_thickness, border_thickness, width - border_thickness, height - border_thickness]
+    draw.rectangle(inner_rect, fill=bg_color)
 
-    pygame_runner(principal, interest_rate, term)
+    font = ImageFont.load_default(height//2)
 
-def get_input():
-    def get_valid_input(prompt, input_type, condition, error_message):
-        while True:
-            try:
-                user_input = input_type(input(prompt))
-            except ValueError:
-                print(f"{error_message} ({input_type.__name__}).")
-                continue
-            if not condition(user_input):
-                print(error_message)
-            else:
-                return user_input
+    # Add the text
+    draw.text((width//10, height//4), text, fill=text_color, font=font)
 
-    # Kapital
-    principal = get_valid_input(
-        "Principal: ",
-        float,
-        lambda x: x > 0,
-        "Principal is expected to be a floating point number greater than zero."
-    )
+    return image
 
-    # Zinssatz
-    interest_rate = get_valid_input(
-        "Interest rate: ",
-        float,
-        lambda x: 0 < x <= 1,
-        "The interest rate is expected to be a floating point number between 0 and 1."
-    )
-
-    # Laufzeit
-    term = get_valid_input(
-        "Term: ",
-        int,
-        lambda x: x > 0,
-        "The term is expected to be a positive integer."
-    )
-
-    return [principal, interest_rate, term]
 
 def print_loan_plan(plan_type, principal, interest_rate, term_length):
     """
@@ -204,62 +197,31 @@ def print_loan_overview(principal, interest_rate, term_length):
     # Printing the overview table
     print(tabulate(values, headers=[header.capitalize() for header in headers], tablefmt="grid"))
 
-def make_plots(principal: float, interest_rate: float, term_length: int):
-    """
-    Generates and saves plots for different loan types.
-
-    This function creates scatter, line, and bar plots for three types of loans:
-    Amortizing, Annuity, and Bullet, based on the loan parameters.
-
-    :param principal: The principal amount of the loan.
-    :type principal: float
-    :param interest_rate: The annual interest rate of the loan.
-    :type interest_rate: float
-    :param term_length: The duration of the loan in years.
-    :type term_length: int
-    """
-
-    # Helper function to generate different types of plots
-    def create_plot(plot_type, x, *args, dataframe, name):
-        """
-        Creates a plot based on the plot type (scatter, line, or bar).
-
-        :param plot_type: The type of plot (e.g., 'scatter', 'line', 'bar').
-        :param x: The x-axis data column.
-        :param args: The y-axis data columns.
-        :param dataframe: The data to plot.
-        :param name: The name of the plot.
-        """
+def generate_plots(principal, interest_rate, term):
+    """Generate and save plots for different loan types."""
+    def plot_data(plot_type, dataframe, name):
         plt.figure(figsize=(10, 6))
-        for arg in args:
+        for column in dataframe.columns[2:]:
             if plot_type == "line":
-                sns.lineplot(x=x, y=arg, label=arg.capitalize(), data=dataframe, alpha=0.75)
+                sns.lineplot(x=dataframe.columns[0], y=column, label=column.capitalize(), data=dataframe, alpha=0.75)
             elif plot_type == "scatter":
-                sns.scatterplot(x=x, y=arg, label=arg.capitalize(), data=dataframe, alpha=0.5)
+                sns.scatterplot(x=dataframe.columns[0], y=column, label=column.capitalize(), data=dataframe, alpha=0.5)
             elif plot_type == "bar":
-                sns.barplot(x=x, y=arg, label=arg.capitalize(), data=dataframe, alpha=0.5)
+                sns.barplot(x=dataframe.columns[0], y=column, label=column.capitalize(), data=dataframe, alpha=0.5)
 
-        plt.title((name + "plot").capitalize())
-        plt.xlabel(x.capitalize())
-        plt.ylabel("Currency")
-        plt.legend(loc="upper left")
+        plt.title(f"{name.replace('_', ' ').title()} Plot")
         plt.grid(True)
-        plt.savefig(os.path.join(plots_dir, f"{name}plot.png"))
+        plt.savefig(os.path.join(PLOT_DIRECTORY, f"{name}_plot.png"))
 
-    # Load the loan data into DataFrames
-    amortizing_df = pd.DataFrame(amortizing_loan(principal, interest_rate, term_length, to_dict=True))
-    annuity_df = pd.DataFrame(annuity_loan(principal, interest_rate, term_length, to_dict=True))
-    bullet_df = pd.DataFrame(bullet_loan(principal, interest_rate, term_length, to_dict=True))
+    amortizing_df = pd.DataFrame(amortizing_loan(principal, interest_rate, term, to_dict=True))
+    annuity_df = pd.DataFrame(annuity_loan(principal, interest_rate, term, to_dict=True))
+    bullet_df = pd.DataFrame(bullet_loan(principal, interest_rate, term, to_dict=True))
 
-    # Generate the plots for each loan type and plot type
-    for loan_type, plot_names_for_loan in zip(loan_models, plot_names):
-        for plot_name, plot_type in zip(plot_names_for_loan, plot_types):
-            if loan_type == "amortizing":
-                create_plot(plot_type, "year", "interest", "repayment", "installment", dataframe=amortizing_df, name=plot_name)
-            elif loan_type == "annuity":
-                create_plot(plot_type, "year", "interest", "repayment", "installment", dataframe=annuity_df, name=plot_name)
-            elif loan_type == "bullet":
-                create_plot(plot_type, "year", "interest", "repayment", "installment", dataframe=bullet_df, name=plot_name)
+    for loan_type, plot_names in zip(LOAN_MODELS, LOAN_PLOT_NAMES):
+        for plot_name, plot_type in zip(plot_names, PLOT_TYPES):
+            dataframe = locals()[f"{loan_type}_df"]
+            plot_data(plot_type, dataframe, plot_name)
+
 
 def formatter(function):
     """
@@ -419,7 +381,9 @@ def bullet_loan(principal: float, interest_rate: float, term: int, **kwargs) -> 
 
     return [time_periods, remaining_balances, interests, repayments, installments]
 
-def pygame_runner(principal, interest_rate, term):
+def run_pygame_interface(principal, interest_rate, term):
+    """Run the Pygame GUI interface for visualizing loan data."""
+
     # Defintion of colors
     black = (0, 0, 0)
     white = (255, 255, 255)
@@ -445,62 +409,55 @@ def pygame_runner(principal, interest_rate, term):
     duration = 3
     frames = duration * fps
 
+    loan_index = 0
+    plot_index = 0
+
     # Section for Buttons
     print_btn = BasicBtn(0, 600, pygame.image.load(
-        os.path.join(btn_img_dir, "print_white.png")
+        os.path.join(BUTTON_IMAGE_DIRECTORY, "print_white.png")
         ).convert_alpha())
 
     plot_btn_imgs = []
-    for plot in plot_types:
+    for plot_type in PLOT_TYPES:
         temp_btn_imgs = []
-        for color in color_names:
-            btn_name = os.path.join(btn_img_dir, f"{plot}_{color}.png")
+        for color in COLOR_SCHEMES:
+            btn_name = os.path.join(BUTTON_IMAGE_DIRECTORY, f"{plot_type}_{color}.png")
             temp_btn_imgs.append(pygame.image.load(btn_name).convert_alpha())
         plot_btn_imgs.append(temp_btn_imgs)
 
     plot_btns = []
     for i, row in enumerate(plot_btn_imgs):
-        btn = ExtraBtn(0, 200 + i * 100, row, plot_types[i])
+        btn = ExtraBtn(0, 200 + i * 100, row, PLOT_TYPES[i])
         if i == 0:
             btn.state = True
         plot_btns.append(btn)
 
     loan_btn_imgs = []
-    for loan_name in loan_models:
+    for loan_model in LOAN_MODELS:
         temp_btn_imgs = []
-        for color in color_names:
-            btn_name = os.path.join(btn_img_dir, f"{loan_name}_{color}.png")
+        for color in COLOR_SCHEMES:
+            btn_name = os.path.join(BUTTON_IMAGE_DIRECTORY, f"{loan_model}_{color}.png")
             temp_btn_imgs.append(pygame.image.load(btn_name).convert_alpha())
         loan_btn_imgs.append(temp_btn_imgs)
 
     loan_btns = []
     for i, row in enumerate(loan_btn_imgs):
-        btn = ExtraBtn(300 + i * 300, height - 100, row, loan_models[i])
+        btn = ExtraBtn(300 + i * 300, height - 100, row, LOAN_MODELS[i])
         if i == 0:
             btn.state = True
         loan_btns.append(btn)
 
-    # Section for plots
-    file_names = []
-    for pref in loan_models:
-        temp_row = []
-        for plot_pref in plot_types:
-            temp_row.append(pref + "_" + plot_pref)
-        file_names.append(temp_row)
-
     plots = []
-    for column in file_names:
+    for column in LOAN_PLOT_NAMES:
         temp_row = []
         for plot_name in column:
             temp_row.append(
                 pygame.image.load(
-                    os.path.join(plots_dir, f"{plot_name}plot.png")
+                    os.path.join(PLOT_DIRECTORY, f"{plot_name}_plot.png")
                     ).convert_alpha()
             )
         plots.append(temp_row)
 
-    loan_index = 0
-    plot_index = 0
 
     def draw_plot(loan_index=0, plot_index=0):
         screen.blit(plots[loan_index][plot_index], (200, 0))
@@ -527,21 +484,20 @@ def pygame_runner(principal, interest_rate, term):
                 pygame.draw.circle(
                     screen,
                     white,
-                    circle(progress, 200 - j, 200 - j),
+                    circle(progress, 200, 200),
                     radius=1,
                 )
                 progress = frame / frames + i / 50 / frames
                 pygame.draw.circle(
                     screen,
                     white,
-                    circle(progress, 200 - j, 200 - j, offset=True),
+                    circle(progress, 200, 200, offset=True),
                     radius=1,
                 )
 
         # Section for Buttons
         if print_btn.draw(screen):
-            print("Print")
-            print(figlet.renderText(loan_models[loan_index].capitalize()))
+            print(figlet.renderText(LOAN_MODELS[loan_index].capitalize()))
             print_loan_plan(loan_index, principal, interest_rate, term)
             print(figlet.renderText("Overview"))
             print_loan_overview(principal, interest_rate, term)
@@ -563,10 +519,6 @@ def pygame_runner(principal, interest_rate, term):
                 elif btn_state == True:
                     if plot_index != i:
                         btn.set_state(False)
-                # Prints for debugging
-                print("Button Index: ", i)
-                print("Button Name: ", btn.get_name())
-                print("Button State: ", btn.get_state())
 
         for i, btn in enumerate(loan_btns):
             if btn.draw(screen):
@@ -586,10 +538,6 @@ def pygame_runner(principal, interest_rate, term):
                 elif btn_state == True:
                     if loan_index != i:
                         btn.set_state(False)
-                # Prints for debugging
-                print("Button Index: ", i)
-                print("Button Name: ", btn.get_name())
-                print("Button State: ", btn.get_state())
 
         # Draw plot
         draw_plot(loan_index, plot_index)
@@ -687,94 +635,6 @@ class ExtraBtn():
             surface.blit(self.images[0], (self.rect.x, self.rect.y))
 
         return action
-
-# Creating Images for buttons
-def create_btn_images(plot_names, loan_names):
-    text = "print"
-    image = create_text_image(
-        text=text.capitalize(),
-        width=200,
-        height=100,
-        bg_color="white",
-        text_color="black",
-        border_color="black",
-        border_thickness=5
-    )
-    filename = os.path.join(btn_img_dir, f"{text}_white.png")
-    image.save(filename)  # Save the image
-
-    for text in plot_names:
-        image = create_text_image(
-            text=text.capitalize(),
-            width=200,
-            height=100,
-            bg_color="white",
-            text_color="black",
-            border_color="black",
-            border_thickness=5
-        )
-        filename = os.path.join(btn_img_dir, f"{text}_white.png")
-        image.save(filename)  # Save the image
-
-        image = create_text_image(
-            text=text.capitalize(),
-            width=200,
-            height=100,
-            bg_color="black",
-            text_color="white",
-            border_color="white",
-            border_thickness=5
-        )
-        filename = os.path.join(btn_img_dir, f"{text}_black.png")
-        image.save(filename)  # Save the image
-
-    for text in loan_names:
-        image = create_text_image(
-            text=text.capitalize(),
-            width=300,
-            height=100,
-            bg_color="white",
-            text_color="black",
-            border_color="black",
-            border_thickness=5
-        )
-        filename = os.path.join(btn_img_dir, f"{text}_white.png")
-        image.save(filename)  # Save the image
-
-        image = create_text_image(
-            text=text.capitalize(),
-            width=300,
-            height=100,
-            bg_color="black",
-            text_color="white",
-            border_color="white",
-            border_thickness=5
-        )
-        filename = os.path.join(btn_img_dir, f"{text}_black.png")
-        image.save(filename)  # Save the image
-
-
-# Creates an Image
-def create_text_image(text, width, height, bg_color, text_color, border_color, border_thickness):
-    # Create a frame
-    img = Image.new("RGB", (width, height), color=border_color)
-    draw = ImageDraw.Draw(img)
-
-    # Inner rectangle for the main content
-    inner_rect = [
-        border_thickness,
-        border_thickness,
-        width - border_thickness,
-        height - border_thickness
-    ]
-    draw.rectangle(inner_rect, fill=bg_color)
-
-    font = ImageFont.load_default(height//2)
-
-    # Add the text
-    draw.text((width//10, height//4), text, fill=text_color, font=font)
-
-    return img
 
 # (kind of not a) Circle for animations
 def circle(progress, width, height, offset=False):
