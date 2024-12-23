@@ -31,19 +31,32 @@ def main():
     parser.add_argument("--principal", type=float, help="Loan amount (Principal).")
     parser.add_argument("--interest_rate", type=float, help="Interest rate (A number between 0 and 1).")
     parser.add_argument("--term", type=int, help="Loan term in years.")
+    parser.add_argument("-r", "--read", action="store_true", help="Read saved plots from the last session.")
 
     args = parser.parse_args()
-    command_line_args = validate_arguments(args)
+    if args.read:
+        # Check if all plots exist
+        all_plots_exist = all(
+            os.path.exists(os.path.join(PLOT_DIRECTORY, f"{name}_plot.png"))
+            for loan in LOAN_PLOT_NAMES
+            for name in loan
+        )
+        if all_plots_exist:
+            print("Loading saved plots...")
+            run_pygame_interface(read=True)
+            return
+        else:
+            print("Saved plots not found. Falling back to interactive mode.")
 
-    if command_line_args:
-        principal, interest_rate, term = command_line_args
+    # Handle CLI arguments or fallback to interactive mode
+    if args.principal and args.interest_rate and args.term:
+        principal, interest_rate, term = args.principal, args.interest_rate, args.term
     else:
         principal, interest_rate, term = get_user_input()
 
     setup_directories()
-
     generate_plots(principal, interest_rate, term)
-    run_pygame_interface(principal, interest_rate, term)
+    run_pygame_interface(principal, interest_rate, term, read=False)
 
 def validate_arguments(args):
     """Validate command-line arguments and return them as a tuple if valid."""
@@ -401,7 +414,7 @@ def bullet_loan(principal: float, interest_rate: float, term: int, **kwargs) -> 
 
     return [time_periods, remaining_balances, interests, repayments, installments]
 
-def run_pygame_interface(principal, interest_rate, term):
+def run_pygame_interface(principal=0, interest_rate=0, term=0, read=False):
     """Run the Pygame GUI interface for visualizing loan data."""
 
     # Defintion of colors
@@ -433,9 +446,10 @@ def run_pygame_interface(principal, interest_rate, term):
     plot_index = 0
 
     # Section for Buttons
-    print_btn = BasicBtn(0, 600, pygame.image.load(
-        os.path.join(BUTTON_IMAGE_DIRECTORY, "print_white.png")
-        ).convert_alpha())
+    if read == False:
+        print_btn = BasicBtn(0, 600, pygame.image.load(
+            os.path.join(BUTTON_IMAGE_DIRECTORY, "print_white.png")
+            ).convert_alpha())
 
     plot_btn_imgs = []
     for plot_type in PLOT_TYPES:
@@ -504,7 +518,7 @@ def run_pygame_interface(principal, interest_rate, term):
                 pygame.draw.circle(
                     screen,
                     white,
-                    circle(progress, 200, 200),
+                    circle(progress, 200, 200, offset=False),
                     radius=1,
                 )
                 progress = frame / frames + i / 50 / frames
@@ -516,11 +530,12 @@ def run_pygame_interface(principal, interest_rate, term):
                 )
 
         # Section for Buttons
-        if print_btn.draw(screen):
-            print(figlet.renderText(LOAN_MODELS[loan_index].capitalize()))
-            print_loan_plan(loan_index, principal, interest_rate, term)
-            print(figlet.renderText("Overview"))
-            print_loan_overview(principal, interest_rate, term)
+        if read == False:
+            if print_btn.draw(screen):
+                print(figlet.renderText(LOAN_MODELS[loan_index].capitalize()))
+                print_loan_plan(loan_index, principal, interest_rate, term)
+                print(figlet.renderText("Overview"))
+                print_loan_overview(principal, interest_rate, term)
 
         for i, btn in enumerate(plot_btns):
             if btn.draw(screen):
