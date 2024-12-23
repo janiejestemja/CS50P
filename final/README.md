@@ -1,50 +1,66 @@
 # Loan Comparison Tool
 
-This project is a Python-based tool for analyzing and comparing different types of loans. The tool provides an easy way to visualize repayment schedules and calculate the costs associated with various loan types. It includes both a command-line interface (CLI) and a graphical user interface (GUI) built with `pygame`.
+A Python-based tool to compare different loan repayment plans (Amortizing, Annuity, and Bullet) with visualization and an interactive GUI. The tool supports graphical plots and terminal-based summaries for better insights into loan repayment schedules.
 
 ---
 
 ## Features
 
-- **Three Loan Types:**
-  - Amortizing Loan
-  - Annuity Loan
-  - Bullet Loan
+- Compare repayment schedules for three loan models:
+  - **Amortizing Loan**
+  - **Annuity Loan**
+  - **Bullet Loan**
+- Generate plots for:
+  - Repayment over time
+  - Interest trends
+  - Total installments
+- Interactive graphical user interface (GUI) built with `pygame`.
+- Detailed terminal output of loan schedules and overviews.
 
-- **Repayment Visualization:**
-  - Tabulated outputs for time periods, remaining balances, interest payments, repayments, and installments.
-  - Clear and structured formatting using the `tabulate` library.
+---
 
-- **CLI Options:**
-  - Input principal amount, interest rate, and loan term via command-line arguments using `argparse`.
+## Prerequisites
 
-- **GUI (pygame):**
-  - View loan repayment schedules interactively.
-  - Buttons for switching between loan types and different visualizations.
+Ensure you have the following installed:
 
-- **Unit Testing:**
-  - Comprehensive test coverage using `pytest` for core logic functions.
+- Python 3.13+
+- Required Python packages:
+  - `pygame`
+  - `Pillow`
+  - `tabulate`
+  - `pyfiglet`
+  - `numpy`
+  - `matplotlib`
+  - `seaborn`
+  - `pandas`
+
+You can install dependencies using the `requirements.txt` file:
+
+```bash
+pip install -r requirements.txt
+```
 
 ---
 
 ## Installation
 
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd <repository-directory>
-   ```
+1. Clone this repository:
 
-2. Create and activate a virtual environment (optional but recommended):
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+```bash
+git clone <repository-url>
+```
+
+2. Navigate to the project directory:
+
+```bash
+cd <repository-folder>
+```
 
 3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+
+```bash
+pip install -r requirements.txt
+```
 
 ---
 
@@ -52,95 +68,72 @@ This project is a Python-based tool for analyzing and comparing different types 
 
 ### Command-Line Interface (CLI)
 
-Run the script with the following arguments:
+Run the script using the following command:
 
-- `--principal` (float): The total amount of the loan.
-- `--interest_rate` (float): Annual interest rate as a decimal (e.g., 0.05 for 5%).
-- `--term` (int): Loan term in years.
+```bash
+python project.py --principal <amount> --interest_rate <rate> --term <years>
+```
 
 Example:
+
 ```bash
-python loan_tool.py --principal 100000 --interest_rate 0.05 --term 10
+python project.py --principal 100000 --interest_rate 0.05 --term 10
 ```
 
-If arguments are not provided, the program will prompt the user for input interactively.
+### Interactive Mode
 
-### Graphical User Interface (GUI)
+If you omit the CLI arguments, the tool will prompt you for:
+- Principal amount
+- Interest rate (as a decimal between 0 and 1)
+- Loan term (in years)
 
-Navigate between loan types and visualizations using the on-screen buttons.
+### GUI Mode
 
----
-
-## Loan Types Explained
-
-### Amortizing Loan
-An amortizing loan has equal repayments over the term of the loan, with the principal gradually paid off while interest payments decrease.
-
-### Annuity Loan
-An annuity loan has constant installments (principal + interest), with the principal portion increasing and interest decreasing over time.
-
-### Bullet Loan
-A bullet loan requires interest payments during the term and a lump-sum principal repayment at the end.
+After the inputs, the GUI displays:
+- Buttons to toggle between different loan models and plot types.
+- Dynamic visualizations for each loan plan.
 
 ---
 
-## Testing
+## Output
 
-Run the unit tests using `pytest`:
-```bash
-pytest
-```
-
-Unit tests are provided for the core logic functions, ensuring correctness for each loan type's repayment calculations.
+1. **Plots**: Saved to the `plots` directory.
+   - Scatter, Line, and Bar plots for Amortizing, Annuity, and Bullet loans.
+2. **Button Images**: Generated in the `btn_img` directory.
+3. **Terminal Output**: Detailed tables showing repayment schedules and an overview.
 
 ---
 
-## Dependencies
+## Directory Structure
 
-- Python 3.10+
-- `pytest`
-- `argparse`
-- `pillow`
-- `tabulate`
-- `pyfiglet`
-- `pygame`
-- `numpy`
-- `matplotlib`
-- `seaborn`
-- `pandas`
-
----
-
-## Project Structure
-
-```
-.
-├── project.py             # Main script
-├── test_project.py        # Unit tests
-├── plots/                 # Saved plots
-├── btn_img/               # GUI assets (Button Images)
-├── requirements.txt       # Python dependencies
-└── README.md              # Project documentation
+```plaintext
+project-folder/
+├── btn_img/                # Auto-generated button images
+├── plots/                  # Generated plots
+├── project.py              # Main script
+├── requirements.txt        # Python dependencies
+└── README.md               # Project documentation
 ```
 
 ---
 
-## Future Improvements
+## Contributing
 
-- Add more detailed visualizations (e.g., matplotlib or seaborn plots).
-- Implement localization support for multiple languages.
-- Expand unit tests for edge cases and invalid inputs.
-- Improve GUI responsiveness and aesthetics.
+Feel free to fork this project and create pull requests for improvements or new features.
 
 ---
 
 ## License
 
-This project is licensed under the MIT License. See `LICENSE` for details.
+This project is licensed under the MIT License.
 
 ---
 
 ## Acknowledgments
 
-Special thanks to contributors and libraries that made this project possible!
-
+- **Libraries Used:**
+  - `pygame` for GUI.
+  - `Pillow` for button image generation.
+  - `matplotlib` and `seaborn` for plots.
+  - `tabulate` for terminal tables.
+  - `pyfiglet` for stylish terminal text.
