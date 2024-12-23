@@ -1,6 +1,30 @@
 import pytest
 from project import amortizing_loan, annuity_loan, bullet_loan, get_annuity_factor
 
+def test_get_annuity_factor():
+    assert get_annuity_factor(10, 1) == 11.0
+
+    with pytest.raises(ValueError, match="Interest rate must be greater than zero."):
+        get_annuity_factor(0, 10)
+
+    with pytest.raises(ValueError, match="Interest rate must be greater than zero."):
+        get_annuity_factor(-0.05, 10)
+
+    with pytest.raises(ValueError, match="Term must be greater than zero."):
+        get_annuity_factor(0.05, 0)
+    with pytest.raises(ValueError, match="Term must be greater than zero."):
+        get_annuity_factor(0.05, -5)
+
+
+@pytest.mark.parametrize("function,principal,interest_rate,term,expected_years", [
+    (amortizing_loan.__wrapped__, 1000, 0.05, 5, [1, 2, 3, 4, 5]),
+    (annuity_loan.__wrapped__, 2000, 0.04, 3, [1, 2, 3]),
+    (bullet_loan.__wrapped__, 1500, 0.03, 4, [1, 2, 3, 4]),
+])
+def test_undecorated_functions(function, principal, interest_rate, term, expected_years):
+    result = function(principal, interest_rate, term)
+    assert result[0] == expected_years
+
 def test_amortizing_loan():
     principal = 1000.0
     interest_rate = 0.05
