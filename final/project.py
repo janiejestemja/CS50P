@@ -1,6 +1,7 @@
 import sys
 import os
 import argparse
+from functools import wraps
 from PIL import Image, ImageDraw, ImageFont
 from tabulate import tabulate
 from pyfiglet import Figlet
@@ -247,7 +248,7 @@ def formatter(function):
     :rtype: list, dict, or zip
     :raises NotImplementedError: If more than one keyword argument is provided.
     """
-    # Definition of wrapper function
+    @wraps(function)
     def wrapper(*args, **kwargs):
 
         if len(kwargs) > 1:
@@ -322,7 +323,26 @@ def amortizing_loan(principal: float, interest_rate: float, term: int, **kwargs)
     return [time_periods, remaining_balances, interests, repayments, installments]
 
 def get_annuity_factor(interest_rate, term):
-    return (pow((1 + interest_rate), term) * interest_rate) / (pow((1 + interest_rate), term) -1)
+    """
+    Calculate the annuity factor for a given interest rate and loan term.
+
+    The annuity factor is used to determine the fixed payment required to pay off
+    a loan over a specified term with a given interest rate. It is based on the
+    formula for present value of an annuity.
+
+    :param interest_rate: The annual interest rate (as a decimal, e.g., 0.05 for 5%).
+    :type interest_rate: float
+    :param term: The loan term in years.
+    :type term: int
+    :return: The calculated annuity factor.
+    :rtype: float
+    :raises ValueError: If interest_rate <= 0 or term <= 0.
+    """
+    if interest_rate <= 0:
+        raise ValueError("Interest rate must be greater than zero.")
+    if term <= 0:
+        raise ValueError("Term must be greater than zero.")
+    return (pow((1 + interest_rate), term) * interest_rate) / (pow((1 + interest_rate), term) - 1)
 
 @formatter
 def annuity_loan(principal: float, interest_rate: float, term: int, **kwargs) -> list:
