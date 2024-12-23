@@ -95,6 +95,13 @@ Example:
 python project.py --principal 100000 --interest_rate 0.05 --term 10
 ```
 
+To just view the Plots generated in the previous session run the script using the following command:
+```bash
+python project.py -r 
+```
+Be aware that in this case the **terminal output** is not available due to the lack of given variables. 
+If the required plots are not found, the script will fall back to interactive mode to generate them. 
+
 ### Interactive Mode
 
 If you omit the CLI arguments, the tool will prompt you for:
