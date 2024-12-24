@@ -200,6 +200,12 @@ def print_loan_overview(principal, interest_rate, term_length):
         f"{values[2][0] - values[0][0]:,.2f}"
     ]
 
+    for i, row in enumerate(values):
+        for j, element in enumerate(row):
+            if type(element) != type(str()):
+                values[i][j] = f"{element:,.2f}"
+
+
     # Add premium values to each loan type's data
     for value, premium in zip(values, premiums):
         value.append(premium)
