@@ -2,4 +2,5 @@ __pycache__/
 .pytest_cache
 btn_img/
 plots/
-
+slideshow.pdf
+video_demo.mkv
